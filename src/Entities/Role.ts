@@ -10,8 +10,7 @@ export class Role  extends BaseEntity{
     role_name!: string;
     
     
-    @Column()
-    rolenum!: string;
+ 
 
     @ManyToMany(() => User)
     @JoinTable()
