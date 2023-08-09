@@ -1,4 +1,4 @@
-// src/index.ts
+
 import express, { Request, Response } from "express";
 import { createConnection } from "typeorm";
 import "./Entities"
