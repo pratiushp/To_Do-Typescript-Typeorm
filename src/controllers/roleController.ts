@@ -31,40 +31,40 @@ export const addRole =async (req:Request, res: Response) => {
 }
 
 
-// export const updateRole = async (req: Request, res: Response) => {
-//     const roleRepository = getRepository(Role);
-//     const userRepository = getRepository(User); // You need to import and get the User repository as well
+export const updateRole = async (req: Request, res: Response) => {
+    const roleRepository = getRepository(Role);
+    const userRepository = getRepository(User);
     
-//     try {
-//         const { roleid, userid } = req.body;
+    try {
+        const { roleid, userid } = req.body;
 
-//         // Find the role and user by their respective IDs
-//         const role = await roleRepository.findOne(roleid);
-//         const user = await userRepository.findOne(userid);
+        // Find the role and user by their respective IDs
+        const role = await roleRepository.findOne({where: {id:roleid}});
+        const user = await userRepository.findOne({where: {id:userid}});
 
-//         if (!role || !user) {
-//             res.status(404).send({
-//                 success: false,
-//                 message: "Role or User not found",
-//             });
-//             return;
-//         }
+        if (!role || !user) {
+            res.status(404).send({
+                success: false,
+                message: "Role or User not found",
+            });
+            return;
+        }
 
-//         // Add the user to the role's users array
-//         role.users.push(user);
-//         await role.save();
+        
+        role.users = [user];
+        await role.save();
 
-//         res.status(200).send({
-//             success: true,
-//             message: "User added to role successfully",
-//         });
+        res.status(200).send({
+            success: true,
+            message: "User added to role successfully",
+        });
 
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).send({
-//             success: false,
-//             message: "Internal Server Error",
-//             error,
-//         });
-//     }
-// }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Internal Server Error",
+            error,
+        });
+    }
+}

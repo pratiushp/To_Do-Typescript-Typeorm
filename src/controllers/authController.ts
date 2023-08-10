@@ -1,16 +1,18 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
 import { getRepository } from "typeorm";
-import { User } from "../Entities/User";
+import { User } from '../Entities/User';
 import { comparePasswords, hashPassword } from "../helper/authHelper";
 import { generateToken } from "../helper/jwtUtils";
-import { body } from "express-validator";
+// import { transporter } from "../helper/sendMail";
+// import  jwt  from "jsonwebtoken";
+// import crypto from "crypto"
+
+// const RESET_SECRET = "thereyougoboydontbesorrybebet"
 
 
 
 
-
-
+//Register User
 export const registerUser = async (req: Request, res: Response) => {
   const userRepository = getRepository(User);
 
@@ -37,6 +39,8 @@ export const registerUser = async (req: Request, res: Response) => {
   }
 };
 
+
+//Login Controller
 export const loginUser = async (req: Request, res: Response) => {
   const userRepository = getRepository(User);
 
@@ -68,3 +72,25 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
+
+//Get all user
+
+export const getAllUser =async (req:Request, res: Response) => {
+  try {
+    const userRepository = getRepository(User);
+    const users = await userRepository.find();
+
+    res.json({
+      success: true,
+      message: "Successfully get all User ",
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving users',
+      error,
+    });
+  }
+};
