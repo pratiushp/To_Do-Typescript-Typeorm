@@ -14,6 +14,14 @@ export const registerValidationRules = [
     body("password").notEmpty().withMessage("Password is required"),
   ];
   
+
+  export const addTaskValidateRules = [
+    body("task_name").notEmpty().withMessage("Task Name is requiredd"),
+    body("Assigned By").notEmpty().withMessage("Add by Whom the Task is assigned by"),
+    body("Assigned to").notEmpty().withMessage("Add to Whom the Task is assigned to"),
+  ];
+
+
   export const validate = (validations: any[]) => {
     return async (req: Request, res: Response, next: any) => {
       await Promise.all(validations.map((validation) => validation.run(req)));

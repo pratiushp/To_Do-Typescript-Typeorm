@@ -10,7 +10,5 @@ export class Role  extends BaseEntity{
     role_name!: string;
     
     
-    @ManyToMany(() => User)
-    @JoinTable()
-   users! : User[]
+    
 }

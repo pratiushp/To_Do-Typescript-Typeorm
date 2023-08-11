@@ -9,7 +9,6 @@ export class Task extends BaseEntity {
     @Column()
     task_name!: string;
 
-
     @OneToOne(() => User)
     @JoinColumn()
     assigned_by!: User

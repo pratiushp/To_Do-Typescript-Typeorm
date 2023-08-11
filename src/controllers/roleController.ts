@@ -51,8 +51,8 @@ export const updateRole = async (req: Request, res: Response) => {
         }
 
         
-        role.users = [user];
-        await role.save();
+        user.role = [role];
+        await user.save();
 
         res.status(200).send({
             success: true,

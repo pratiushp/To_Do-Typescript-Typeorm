@@ -15,5 +15,9 @@ export class User extends BaseEntity {
     @Column()
     password!: string;
 
+    @ManyToMany(() => Role,{eager:true})
+    @JoinTable()
+     role! : Role[]
+
   
 }
