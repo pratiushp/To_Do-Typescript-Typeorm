@@ -5,6 +5,7 @@ import { Role } from "./Entities/Role"
 import { User } from "./Entities/User"
 import {router} from "./routes/authRoute"
 import bodyParser from "body-parser";
+import { Task } from "./Entities/Task";
 
 
 const app = express();
@@ -19,7 +20,7 @@ createConnection({
   database: "Application",
   synchronize: false,
  
-  entities: [Role, User],
+  entities: [Role, User, Task],
   
   // logging: false,
   

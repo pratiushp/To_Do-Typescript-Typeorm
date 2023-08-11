@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const secretKey = "typescriptormsequelizepractice"; // Replace with a strong secret key
+const secretKey = "typescriptormsequelizepractice"; 
 
 export const generateToken = (userId: number): string => {
   const token = jwt.sign({ userId }, secretKey, { expiresIn: "1h" });
