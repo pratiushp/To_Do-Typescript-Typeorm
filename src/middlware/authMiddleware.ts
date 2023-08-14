@@ -29,12 +29,33 @@ export const requireSignIn = async (req: any, res: Response, next: NextFunction)
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+
+//Admin Access
 export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
 
     try {
         const admin = req.user?.role;
 
         if (!admin) {
+            return res.status(401).json({message:"Unauthorized Access"})
+          
+        } else {
+            next()
+        }
+        
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+//Supervisor Access 
+export const isSupervisor = async (req: any, res: Response, next: NextFunction) => {
+
+    try {
+        const supervisor = req.user?.role;
+
+        if (!supervisor) {
             return res.status(401).json({message:"Unauthorized Access"})
           
         } else {

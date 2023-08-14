@@ -15,6 +15,9 @@ export class User extends BaseEntity {
 
     @Column()
     password!: string;
+    
+    // @Column()
+    // resetToken!: string;
 
     @OneToMany(() => Task, (task) => task.user)
     task!: Task[];

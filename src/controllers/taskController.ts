@@ -85,13 +85,12 @@ export const editTaskController =async (req:any, res: Response) => {
 
 export const delTask =async (req:any, res: Response) => {
     try {
-        const taskId = req.params.Taskid;
-        // const task = await Task.findOne({ where: { id: taskId } })
-        // if (!task) {
-        //     return res.status(404).send("Task Not Found")
-        // }
+        const taskId = req.params.id;
+        console.log(taskId)
+      
         const delTask = await Task.delete({id:taskId});
 
+        console.log(delTask.affected===0);
         if (!delTask) {
             return res.status(404).send("Task Not Found")
         }
@@ -110,3 +109,71 @@ export const delTask =async (req:any, res: Response) => {
         
     }
 }
+
+
+export const getSingleTaskController =async (req:any, res:Response) => {
+    try {
+        const taskId = req.params.id;
+
+        const task = await Task.findOne({where: {id:taskId}})
+        if (!taskId) {
+            return res.status(404).send("Not Found Task");
+
+        }
+
+        return res.status(200).send({
+            success: true,
+            message: "Successfully Retrive Task",
+            task,
+        })
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+            success: false,
+            message: "Error in Retrieving Task Error",
+            error,
+        })
+    }
+}
+
+export const getAllTask = async (req:any, res: Response) => {
+    try {
+      
+        const task = await Task.find()
+        
+
+        return res.status(200).send({
+            success: true,
+            message: "Successfully Retrieve All Task",
+            task,
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Failed to retrieve all task",
+            error,
+        })
+    }
+}
+
+
+// export const paginationController =async (req:any, res:Response) => {
+//     try {
+//         const limitValue = req.query.limit || 2;
+//         const currentPage = req.query.page || 1;
+
+//         const skipValue = (currentPage - 1) * limitValue;
+//         const tasks = await Task.find().limit(limitValue).skip(skipValue);
+
+
+//     } catch (error) {
+//         console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       message: "Error while fetching tasks",
+//       error,
+//     });
+//     }
+// }

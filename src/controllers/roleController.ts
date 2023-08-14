@@ -4,6 +4,8 @@ import { Role } from './../Entities/Role';
 import { User } from "../Entities/User";
 
 
+
+
 export const addRole =async (req:Request, res: Response) => {
      const roleRepository = getRepository(Role); //Database Operation used
    
@@ -64,6 +66,67 @@ export const updateRole = async (req: Request, res: Response) => {
         res.status(500).send({
             success: false,
             message: "Internal Server Error",
+            error,
+        });
+    }
+}
+
+
+export const getAdmin =async (req:Request, res: Response) => {
+    try {
+       
+// Find the role and user by their respective IDs
+const role = await Role.findOne({where: {id: 1}});
+        const user = await User.findOne({where: {id: role?.id}});
+        
+        if ( !user) {
+            return res.status(404).send("Not Found User")
+        }
+
+        res.status(200).send({
+            success: true,
+            message: "User Found with Supervisor role ",
+            user,
+        });
+  
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Error in Finding Sueprvisor role",
+            error,
+        });
+    }
+}
+
+
+export const getSupervisor =async (req:Request, res: Response) => {
+    try {
+
+// Find the role and user by their respective IDs
+const role = await Role.find()
+        const user = await User.find();
+       
+    
+        
+
+        // if ( !user) {
+        //     return res.status(404).send("Not Found User")
+        // }
+
+        res.status(200).send({
+            success: true,
+            message: "User Found with Supervisor role ",
+            user,
+        });
+  
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Error in Finding Sueprvisor role",
             error,
         });
     }

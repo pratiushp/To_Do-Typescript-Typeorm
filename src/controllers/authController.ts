@@ -4,10 +4,12 @@ import { User } from '../Entities/User';
 import { comparePasswords, hashPassword } from "../helper/authHelper";
 import { generateToken } from "../helper/jwtUtils";
 // import { transporter } from "../helper/sendMail";
-// import  jwt  from "jsonwebtoken";
+import  jwt  from "jsonwebtoken";
+
+// import { sendEmail } from "../helper/sendMail";
 // import crypto from "crypto"
 
-// const RESET_SECRET = "thereyougoboydontbesorrybebet"
+const RESET_SECRET = "typescriptormsequelizepractice"
 
 
 
@@ -74,23 +76,161 @@ export const loginUser = async (req: Request, res: Response) => {
 
 
 //Get all user
-
-export const getAllUser =async (req:Request, res: Response) => {
+export const getallUser = async (req: Request, res: Response) => {
   try {
-    const userRepository = getRepository(User);
-    const users = await userRepository.find();
+    
+    const users = await User.find()
 
-    res.json({
+
+    return res.status(200).send({
       success: true,
-      message: "Successfully get all User ",
-      data: users,
-    });
+      message: "Successfully get all users",
+      users
+    })
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Error retrieving users',
-      error,
+      message: "An error occurred",
+      error
     });
   }
-};
+}
+
+
+export const getSingleUser =async (req:any, res: Response) => {
+  try {
+    const userId = req.params.id
+
+    const user = await User.findOne({ where: { id: userId } })
+    
+    if (!user) {
+      return res.status(404).send("User Not Found");
+    }
+
+    return res.status(200).send({
+      success: true,
+      messasge: "Single User Retrieve Successfully",
+      user,
+    })
+
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in retrieving Single User",
+      error
+
+    })
+  }
+}
+
+
+export const getAdmin =async (req:Request, res: Response) => {
+  try {
+    const user = await User.find({ where: { id: 1 } })
+    
+    if (!user) {
+      return res.status(404).send("User Not Found with Admin Role");
+    }
+
+    return res.status(200).send({
+      success: true,
+      messasge: "User with Admin Role Fetched",
+      user,
+    })
+
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in retrieving Admin User",
+      error
+    })
+    
+  }
+}
+
+// export const getSupervisor =async (req:Request, res: Response) => {
+//   try {
+   
+//     const user = await User.find({ where: { role_name: "admin" } })
+    
+//     if (!user) {
+//       return res.status(404).send("User Not Found with Supervisor Role");
+//     }
+
+//     return res.status(200).send({
+//       success: true,
+//       messasge: "User with Supervisor Role Fetched",
+//       user,
+//     })
+
+    
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       message: "Error in retrieving Admin User",
+//       error
+//     })
+    
+//   }
+// }
+
+
+
+
+
+
+
+
+// const createResetToken = (user: any) => {
+//   return jwt.sign({ _id: user._id }, RESET_SECRET, {
+//     expiresIn: "1h", // Token expires in 5 minutes
+//   });
+// };
+
+
+
+// //Foeget password
+
+// export const forgetPassword =async (req:Request, res: Response) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne(email)
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const resetToken = createResetToken(user);
+//     user.resetToken = resetToken;
+//     await user.save()
+
+
+//      // Send the reset link to the user's email
+//      const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+//      await sendEmail({
+//        email: user.email,
+//        subject: "Reset your password",
+//        message: `Hello ${user.name}, Click on the link to reset your password: ${resetUrl}`,
+//      });
+ 
+//      res.status(201).json({
+//        success: true,
+//        message: `Please check your email: ${user.email} to reset your password`,
+//      });
+    
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       message: "Error in sending mail ",
+//       error,
+//     })
+//   }
+// }
