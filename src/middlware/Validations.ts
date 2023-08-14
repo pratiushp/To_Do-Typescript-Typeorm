@@ -17,7 +17,7 @@ export const registerValidationRules = [
 
   export const addTaskValidateRules = [
     body("task_name").notEmpty().withMessage("Task Name is requiredd"),
-    body("Assigned By").notEmpty().withMessage("Add by Whom the Task is assigned by"),
+    // body("Assigned By").notEmpty().withMessage("Add by Whom the Task is assigned by"),
     body("Assigned to").notEmpty().withMessage("Add to Whom the Task is assigned to"),
   ];
 

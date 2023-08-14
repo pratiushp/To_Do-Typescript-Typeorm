@@ -30,28 +30,17 @@ export const requireSignIn = async (req: any, res: Response, next: NextFunction)
     }
 }
 export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
-    const userRepository = (User);
-    const roleRepository =(Role);
 
     try {
-        console.log(req.user?.role)
-        // const users = await User.findOne({ where:{email: user.email}});
+        const admin = req.user?.role;
 
-        // if (!users) {
-        //     return res.status(401).json({ message: "User not found" });
-        // }
-
-        // const admin = await Role.findOne({ where: { id: 1 } })
+        if (!admin) {
+            return res.status(401).json({message:"Unauthorized Access"})
+          
+        } else {
+            next()
+        }
         
-        // if (!admin) {
-        //     return res.status(401).send({
-        //         success: false,
-        //         message: "Unauthorized Access"
-        //     })
-        // } else {
-        //     next();
-            
-        // }
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }

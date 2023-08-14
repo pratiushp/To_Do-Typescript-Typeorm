@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToMany, JoinTable, OneToMany, JoinColumn} from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne} from "typeorm";
 import { Role } from "./Role";
+import { Task } from "./Task";
 
 @Entity()
 export class User extends BaseEntity {
@@ -14,6 +15,13 @@ export class User extends BaseEntity {
 
     @Column()
     password!: string;
+
+    @OneToMany(() => Task, (task) => task.user)
+    task!: Task[];
+
+    @OneToMany(() => Task, (task) => task.userAssignedBY)
+    taskAssignedBy!: Task[];
+
 
     @ManyToMany(() => Role,{eager:true})
     @JoinTable()

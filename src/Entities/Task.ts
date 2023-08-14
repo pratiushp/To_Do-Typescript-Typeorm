@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToOne, JoinColumn, IntegerType } from "typeorm";
-import {User} from "../Entities/User"
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToOne, JoinColumn, OneToMany, ManyToOne } from "typeorm";
+import { User } from "../Entities/User";
 
 @Entity()
 export class Task extends BaseEntity {
@@ -9,14 +9,18 @@ export class Task extends BaseEntity {
     @Column()
     task_name!: string;
 
-    @OneToOne(() => User)
-    @JoinColumn()
-    assigned_by!: User
-
-    @OneToOne(() => User)
-    @JoinColumn()
-    assigned_to!:  User
+    // @ManyToOne(() => User, (user) => user.task)
+    // // @JoinColumn()
+    // userAdmin!: User;
 
 
-
+    @ManyToOne(() => User, (user) => user.task)
+    // @JoinColumn()
+    user!: User;
+    @ManyToOne(() => User, (user) => user.taskAssignedBy)
+    // @JoinColumn()
+    userAssignedBY!: User;
+    // @OneToOne(() => User)
+    // @JoinColumn()
+    // assigned_to!: number; 
 }

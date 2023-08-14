@@ -7,8 +7,6 @@ export class Role  extends BaseEntity{
     id!: number;
 
     @Column()
-    role_name!: string;
-    
-    
+    role_name!: String;
     
 }

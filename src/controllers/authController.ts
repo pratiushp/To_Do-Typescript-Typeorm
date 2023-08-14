@@ -58,8 +58,8 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!passwordMatches) {
       return res.status(401).json({ message: "Authentication failed" });
     }
-
-    const token = generateToken(user.id);
+    console.log(user.name)
+    const token = generateToken(user.id, user.role.map(role=>role.role_name));
 
     res.status(200).json({
       success: true,
