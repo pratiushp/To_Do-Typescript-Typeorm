@@ -18,7 +18,7 @@ createConnection({
   username: "root",
   password: "Kathmandu1#",
   database: "Application",
-  synchronize: true,
+  synchronize: false,
  
   entities: [Role, User, Task],
   

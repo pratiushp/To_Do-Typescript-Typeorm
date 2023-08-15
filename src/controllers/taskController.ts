@@ -8,9 +8,9 @@ export const addTaskController = async (req: any, res: Response) => {
     try {
         const { task_name, assigned_to } = req.body;
 
-        const assigned_by = req.user.id;
+        const assigned_by = req.user?.id;
 
-        const taskExist =await Task.findOne({where:{task_name: task_name}  });
+        const taskExist =await Task.find({where:{task_name: task_name}  });
 
         if (!taskExist) {
           return res.status(401).send("Task Already Exist")

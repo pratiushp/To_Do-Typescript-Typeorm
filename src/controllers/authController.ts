@@ -52,7 +52,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const user = await userRepository.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(401).json({ message: "Authentication failed" });
+      return res.status(401).json({ message: "User not Found" });
     }
 
     const passwordMatches = await comparePasswords(password, user.password);
@@ -128,58 +128,9 @@ export const getSingleUser =async (req:any, res: Response) => {
 }
 
 
-export const getAdmin =async (req:Request, res: Response) => {
-  try {
-    const user = await User.find({ where: { id: 1 } })
-    
-    if (!user) {
-      return res.status(404).send("User Not Found with Admin Role");
-    }
 
-    return res.status(200).send({
-      success: true,
-      messasge: "User with Admin Role Fetched",
-      user,
-    })
 
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in retrieving Admin User",
-      error
-    })
-    
-  }
-}
 
-// export const getSupervisor =async (req:Request, res: Response) => {
-//   try {
-   
-//     const user = await User.find({ where: { role_name: "admin" } })
-    
-//     if (!user) {
-//       return res.status(404).send("User Not Found with Supervisor Role");
-//     }
-
-//     return res.status(200).send({
-//       success: true,
-//       messasge: "User with Supervisor Role Fetched",
-//       user,
-//     })
-
-    
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       message: "Error in retrieving Admin User",
-//       error
-//     })
-    
-//   }
-// }
 
 
 

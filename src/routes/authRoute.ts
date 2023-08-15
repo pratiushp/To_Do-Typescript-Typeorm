@@ -1,6 +1,6 @@
 import express from "express"
-import { getAdmin, getSingleUser,  getallUser, loginUser, registerUser } from "../controllers/authController"
-import { addRole,  getSupervisor,  updateRole } from "../controllers/roleController";
+import {  getSingleUser,  getallUser, loginUser, registerUser } from "../controllers/authController"
+import { addRole,    getAdmin,    getSupervisor,    getUser,    updateRole } from "../controllers/roleController";
 import { addTaskValidateRules, loginValidationRules, registerValidationRules, validate } from "../middlware/Validations";
 import {  addTaskController, delTask, editTaskController, getAllTask, getSingleTaskController } from "../controllers/taskController";
 import { isAdmin, isSupervisor, requireSignIn } from "../middlware/authMiddleware";
@@ -15,7 +15,7 @@ router.post("/register", validate(registerValidationRules), registerUser);
 router.post("/login", validate(loginValidationRules), loginUser);
 router.get("/get-all-users", requireSignIn, isAdmin, getallUser);
 router.get("/get-user/:id", requireSignIn, isAdmin, getSingleUser);
-router.get("/get-admin", requireSignIn, isAdmin, getAdmin);
+
 // router.get("/get-supervisor", requireSignIn, isAdmin, getSupervisor);
 // router.delete("/del-user/:id", requireSignIn, isAdmin, delUser);
 // router.post("/forget-password", forgetPassword )
@@ -26,6 +26,9 @@ router.get("/get-admin", requireSignIn, isAdmin, getAdmin);
 router.post("/add-role", addRole)
 router.post("/update-role", requireSignIn, isAdmin, updateRole)
 router.get("/get-supervisor", requireSignIn, isAdmin, getSupervisor)
+router.get("/get-admin", requireSignIn, isAdmin, getAdmin)
+router.get("/get-user", requireSignIn, isAdmin, getUser)
+
 
 
 //Task Routes
