@@ -3,14 +3,14 @@ import { User } from "../Entities/User";
 import { Role } from '../Entities/Role';
 import jwt from "jsonwebtoken"
 
-interface ReqUser extends Request{
-    user: any;
+interface ReqUser<p,q,r,s> extends Request<p,q,r,s>{
+    user?: User;
 }
 
 // Protect Route
 const JWT_SECRET = "typescriptormsequelizepractice";
 
-export const requireSignIn = async (req: any, res: Response, next: NextFunction) => {
+export const requireSignIn = async (req: ReqUser<any,any,any,any>, res: Response, next: NextFunction) => {
     try {
         let token = req.headers.authorization;
         if (!token) {
@@ -21,7 +21,8 @@ export const requireSignIn = async (req: any, res: Response, next: NextFunction)
         if (!decode) {
             return res.status(401).json({ message: "Invalid token" });
         }
-        const userdet=await User.findOne({where:{id:decode.userId}})
+        const userdet = await User.findOne({ where: { id: decode.userId } })
+        if(userdet)
         req.user = userdet;
         next();
     } catch (error) {

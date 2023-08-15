@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToOne, JoinColum
 import { User } from "../Entities/User";
 
 @Entity()
-export class Task extends BaseEntity {
+export class Task  extends BaseEntity {
     @PrimaryGeneratedColumn()
     id!: number;
 

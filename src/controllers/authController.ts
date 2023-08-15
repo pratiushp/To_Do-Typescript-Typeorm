@@ -3,11 +3,12 @@ import { getRepository } from "typeorm";
 import { User } from '../Entities/User';
 import { comparePasswords, hashPassword } from "../helper/authHelper";
 import { generateToken } from "../helper/jwtUtils";
-// import { transporter } from "../helper/sendMail";
-import  jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken"
+import { sendMail } from "../helper/sendMail";
 
-// import { sendEmail } from "../helper/sendMail";
-// import crypto from "crypto"
+
+
+
 
 const RESET_SECRET = "typescriptormsequelizepractice"
 
@@ -127,61 +128,73 @@ export const getSingleUser =async (req:any, res: Response) => {
   }
 }
 
+const createResetToken = (user: any) => {
+  return jwt.sign({ _id: user._id }, RESET_SECRET, {
+    expiresIn: '1h', 
+  });
+};
+
+export const forgetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({where: {email: email} }); 
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const resetToken = createResetToken(user);
+    user.resetToken = resetToken;
+    await user.save();
+
+    // Send the reset link to the user's email
+    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    await sendMail({
+      email: user.email,
+      subject: 'Reset your password',
+      message: `Hello ${user.name}, Click on the link to reset your password: ${resetUrl}`,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Please check your email: ${user.email} to reset your password`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error in sending mail',
+      error,
+    });
+  }
+};
 
 
+// export const resetPasswordController = async (req:Request, res:Response) => {
+//   const { newPassword, resetToken } = req.body;
+//   // const resetToken = req.params.token;?
 
-
-
-
-
-
-
-
-
-
-// const createResetToken = (user: any) => {
-//   return jwt.sign({ _id: user._id }, RESET_SECRET, {
-//     expiresIn: "1h", // Token expires in 5 minutes
-//   });
-// };
-
-
-
-// //Foeget password
-
-// export const forgetPassword =async (req:Request, res: Response) => {
 //   try {
-//     const { email } = req.body;
-//     const user = await User.findOne(email)
+//     // Verify the reset token
+//     const decoded = jwt.verify(resetToken, RESET_SECRET);
+//     console.log("decoded", decoded);
+
+//     // Find the user by ID using the token data
+//     const user = await User.findOne(decoded._id);
 
 //     if (!user) {
 //       return res.status(404).json({ message: "User not found" });
 //     }
 
-//     const resetToken = createResetToken(user);
-//     user.resetToken = resetToken;
-//     await user.save()
+//     // Update the user's password and clear the reset token
+//     user.password = newPassword;
+//     user.resetToken = undefined;
+//     await user.save();
+//     console.log("user::::", user);
 
-
-//      // Send the reset link to the user's email
-//      const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
-//      await sendEmail({
-//        email: user.email,
-//        subject: "Reset your password",
-//        message: `Hello ${user.name}, Click on the link to reset your password: ${resetUrl}`,
-//      });
- 
-//      res.status(201).json({
-//        success: true,
-//        message: `Please check your email: ${user.email} to reset your password`,
-//      });
-    
+//     res.json({ message: "Password reset successful" });
 //   } catch (error) {
 //     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       message: "Error in sending mail ",
-//       error,
-//     })
+//     res.status(400).json({ message: "Invalid or expired reset token" });
 //   }
-// }
+// };
