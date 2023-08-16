@@ -129,7 +129,7 @@ export const getSingleUser =async (req:any, res: Response) => {
 }
 
 const createResetToken = (user: any) => {
-  return jwt.sign({ _id: user._id }, RESET_SECRET, {
+  return jwt.sign({ id: user.id }, RESET_SECRET, {
     expiresIn: '1h', 
   });
 };
@@ -170,31 +170,31 @@ export const forgetPassword = async (req: Request, res: Response) => {
 };
 
 
-// export const resetPasswordController = async (req:Request, res:Response) => {
-//   const { newPassword, resetToken } = req.body;
-//   // const resetToken = req.params.token;?
+export const resetPasswordController = async (req: Request, res: Response) => {
+  const { newPassword, resetToken } = req.body;
 
-//   try {
-//     // Verify the reset token
-//     const decoded = jwt.verify(resetToken, RESET_SECRET);
-//     console.log("decoded", decoded);
+  try {
+    const decoded = jwt.verify(resetToken, RESET_SECRET)as {id: number};
 
-//     // Find the user by ID using the token data
-//     const user = await User.findOne(decoded._id);
+    // console.log("decoded", decoded);
 
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
+    const user = await User.findOne({ where: { id: decoded.id } });
 
-//     // Update the user's password and clear the reset token
-//     user.password = newPassword;
-//     user.resetToken = undefined;
-//     await user.save();
-//     console.log("user::::", user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-//     res.json({ message: "Password reset successful" });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(400).json({ message: "Invalid or expired reset token" });
-//   }
-// };
+    user.password = newPassword;
+    user.resetToken = undefined;
+    await user.save();
+    // console.log("user::::", user);
+
+    return res.status(200).send({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Invalid reset token" });
+  }
+};
