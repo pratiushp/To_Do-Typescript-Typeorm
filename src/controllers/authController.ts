@@ -198,3 +198,54 @@ export const resetPasswordController = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid reset token" });
   }
 };
+
+export const getUsersWithPagination = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 3;
+    const skip = (page - 1) * limit;
+
+    const userRepository = (User);
+
+    const users= await userRepository.findAndCount({
+      skip,
+      take: limit,
+    });
+
+    return res.status(200).send({
+      success: true,
+      message: "Users retrieved successfully with pagination",
+      users,
+
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+
+
+export const searchUser = async (req: Request, res: Response) => {
+ 
+    const { username } = req.params;
+    try {
+      const results = await User.createQueryBuilder('user')
+      .where('user.name LIKE :username', { username: `%${username}%` })
+      .getMany();
+
+      res.json(results);
+    
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({
+        success: false,
+        message: "Internal Server Error",
+        error,
+      })
+    }
+  }
