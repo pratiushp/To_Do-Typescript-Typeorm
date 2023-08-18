@@ -16,10 +16,10 @@ export class Task  extends BaseEntity {
 
     @ManyToOne(() => User, (user) => user.task)
     // @JoinColumn()
-    user!: User;
+    userAssignedBy!: User;
     @ManyToOne(() => User, (user) => user.taskAssignedBy)
     // @JoinColumn()
-    userAssignedBY!: User;
+    userAssignedTo!: User;
     // @OneToOne(() => User)
     // @JoinColumn()
     // assigned_to!: number; 

@@ -1,44 +1,27 @@
-
 import express, { Request, Response } from "express";
-import { createConnection } from "typeorm";
-import { Role } from "./Entities/Role"
-import { User } from "./Entities/User"
-import {router} from "./routes/authRoute"
+import {router} from "./routes/index"
 import bodyParser from "body-parser";
-import { Task } from "./Entities/Task";
-import { EmailMessage } from "./Entities/Email";
+import { AppDataSource } from "./dataSource";
 
 
 const app = express();
 const PORT = 3000;
 
-createConnection({
-  type: "mysql",
-  host: "localhost",
-  port: 3306,
-  username: "root",
-  password: "Kathmandu1#",
-  database: "Application",
-  synchronize: false,
- 
-  entities: [Role, User, Task, EmailMessage],
-  
-  // logging: false,
-  
-  }
-)
-  .then(async () => {
-    console.log("Database Connected");
-    })
-   .catch((error) => {
-      console.error("Error in Connecting Database:", error);
-   });
+
+app.use(bodyParser.json())
+
    
-   app.use(bodyParser.json())
+AppDataSource.initialize()
+.then(() => {
+    console.log("Database Connected")
+})
+.catch((err) => {
+    console.error("Error in connecting database ")
+})
     
    app.use("/", router)
 
-    app.get("/", async (_req: Request, res: Response) => {
+    app.get("/", async (req: Request, res: Response) => {
     
       res.json("Application Get")
     });
@@ -46,4 +29,7 @@ createConnection({
     app.listen(PORT, () => {
       console.log(`Server Running on PORT ${PORT}`);
     });
+
+//handle 404 not found error
+
  

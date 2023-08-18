@@ -22,20 +22,9 @@ router.get("/user/search/:username", searchUser )
 
 
 
-//Role Routes
-router.post("/add-role", addRole)
-router.post("/update-role", requireSignIn, isAdmin, updateRole)
-router.get("/get-supervisor", requireSignIn, isAdmin, getSupervisor)
-router.get("/get-admin", requireSignIn, isAdmin, getAdmin)
-router.get("/get-user", requireSignIn, isAdmin, getUser)
 
 
 
-//Task Routes
-router.post("/add-task", requireSignIn, isAdmin, addTaskController, validate(addTaskValidateRules) )
-router.put("/edit-task/:id", requireSignIn, isAdmin, editTaskController)
-router.delete("/del-task/:id", requireSignIn, isAdmin, delTask)
-router.get("/get-task/:id", requireSignIn, isSupervisor,  getSingleTaskController)
-router.get("/getall-task", requireSignIn, isAdmin,  getAllTask)
 
-export { router }
+
+export default router 

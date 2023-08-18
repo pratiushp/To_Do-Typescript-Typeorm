@@ -20,8 +20,8 @@ export const addTaskController = async (req: any, res: Response) => {
 
         const task = new Task();
         task.task_name = task_name;
-        task.user = assigned_by;
-        task.userAssignedBY = assigned_to;
+        task.userAssignedBy = assigned_by;
+        task.userAssignedTo = assigned_to;
 
 
         await task.save();
@@ -62,7 +62,7 @@ export const editTaskController =async (req:any, res: Response) => {
         }
 
         task.task_name = task_name;
-        task.userAssignedBY = assigned_to;
+        task.userAssignedTo = assigned_to;
         const updatedTask = await task.save();
 
         res.status(200).send({
@@ -158,6 +158,36 @@ export const getAllTask = async (req:any, res: Response) => {
     }
 }
 
+// export const getTasksAssignedByUser = async (req: Request, res: Response) => {
+//     try {
+//       const assignedByUserId = req.user?.id; 
+  
+//       if (!assignedByUserId) {
+//         return res.status(401).send("Unauthorized");
+//       }
+  
+//       const tasks = await Task.find({ user: assignedByUserId });
+  
+//       return res.status(200).send({
+//         success: true,
+//         message: "Tasks assigned by user retrieved successfully",
+//         tasks,
+//       });
+//     } catch (error) {
+//       console.log(error);
+//       res.status(500).send({
+//         success: false,
+//         message: "Error while fetching tasks assigned by user",
+//         error,
+//       });
+//     }
+//   };
+
+//api for my task
+
+//api for getting task that i assigned
+
+//add search, pagination and sort in above api
 
 // export const paginationController =async (req:any, res:Response) => {
 //     try {

@@ -1,14 +1,12 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
 import { Role } from './../Entities/Role';
 import { User } from "../Entities/User";
-
-
-
+import { successResponse } from "../helper/successResponse";
+import { errorResponse } from "../helper/errorResponse";
 
 
 export const addRole =async (req:Request, res: Response) => {
-     const roleRepository = getRepository(Role); //Database Operation used
+     const roleRepository = (Role); //Database Operation used
    
     try {
         const { roleName } = req.body
@@ -16,65 +14,49 @@ export const addRole =async (req:Request, res: Response) => {
         const roledef =  roleRepository.create({
             role_name: roleName,
         }).save()
-        res.status(201).send({
-            success: true,
-            message: "Role Added Successfully",
-            roledef,
-        })
+        const success = successResponse("Role Added Successfully", roledef);
+        res.status(201).send(success);
         
     } catch (error) {
         console.log(error)
-        res.status(500).send({
-            success: false,
-            message: "Internal Server Error",
-            error
-        })
+        const errorR = errorResponse("Internal Server Error", error);
+    res.status(500).send(errorR);
         
     }
 }
 
 
 export const updateRole = async (req: Request, res: Response) => {
-    const roleRepository = getRepository(Role);
-    const userRepository = getRepository(User);
-    
+    const roleRepository = Role;
+    const userRepository = User;
+  
     try {
-        const {   userid, roleid } = req.body;
-        
-        const role = await roleRepository.findOne({where: {id:roleid}});
-        const user = await userRepository.findOne({where: {id:userid}});
-
-        if (!role || !user) {
-            res.status(404).send({
-                success: false,
-                message: "Role or User not found",
-            });
-            return;
-        }
-
-        
-        user.role = [role];
-        await user.save();
-
-        res.status(200).send({
-            success: true,
-            message: "User added to role successfully",
-            
-        });
-
+      const { userid, roleid } = req.body;
+  
+      const role = await roleRepository.findOne({ where: { id: roleid } });
+      const user = await userRepository.findOne({ where: { id: userid } });
+  
+      if (!role || !user) {
+        const notFoundResponse = errorResponse("Role or User not found");
+        return res.status(404).send(notFoundResponse);
+      }
+  
+      user.role = [role];
+      await user.save();
+  
+      const success = successResponse("User Added to Role Successfully");
+      res.status(200).send(success);
     } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            success: false,
-            message: "Internal Server Error",
-            error,
-        });
+      console.log(error);
+      const err = errorResponse("Internal Server Error", error);
+      res.status(500).send(err);
     }
-}
+  };
 
 
-
-export const getSupervisor = async(req: Request, res: Response)=> {
+export const getSupervisor = async (req: Request, res: Response) => {
+    const { type } = req.query
+    //type=supervisor||admin||user
       const roleId = 2; // Role ID  of Supervisor
   
       try {
@@ -84,15 +66,12 @@ export const getSupervisor = async(req: Request, res: Response)=> {
           .leftJoinAndSelect("user.role", "role") 
           .where("role.id = :roleId", { roleId })
           .getMany();
-  
-          res.status(200).send({
-              success: true,
-              message: "Successfully get User whose role is Supervisor",
-              usersWithRole,
-          });
+          const success = successResponse("Successfully get User whose role is Supervisor ", usersWithRole)
+          res.status(200).send(success);
       } catch (error) {
-        console.error("Error fetching users by role ID:", error);
-        res.status(500).json({ error: "An error occurred" });
+          console.log(error);
+          const err = errorResponse("Error in fetching the User whose Role is Supervisor")
+          res.status(500).json(err);
       }
     }
   
@@ -108,18 +87,12 @@ export const getSupervisor = async(req: Request, res: Response)=> {
             .where("role.id = :roleId", { roleId })
             .getMany();
     
-            res.status(200).send({
-                success: true,
-                message: "Successfully get User whose role is Admin ",
-                usersWithRole,
-            });
+            const success = successResponse("Successfully get User whose role is Admin ", usersWithRole)
+            res.status(200).send(success);
         } catch (error) {
-          console.log( error);
-            res.status(500).json({
-                success: false,
-                message: "Error in fetching the User whose Role is Admin",
-
-            });
+            console.log(error);
+            const err = errorResponse("Error in fetching the User whose Role is Admin")
+            res.status(500).json(err);
         }
       }
     
@@ -136,17 +109,12 @@ export const getSupervisor = async(req: Request, res: Response)=> {
             .where("role.id = :roleId", { roleId })
             .getMany();
     
-            res.status(200).send({
-                success: true,
-                message: "Successfully get User whose role is User ",
-                usersWithRole,
-            });
-        } catch (error) {
-          console.log( error);
-            res.status(500).json({
-                success: false,
-                message: "Error in fetching the User whose Role is User",
 
-            });
+            const success = successResponse("Successfully get User whose role is User ", usersWithRole)
+            res.status(200).send(success);
+        } catch (error) {
+            console.log(error);
+            const err = errorResponse("Error in fetching the User whose Role is User")
+            res.status(500).json(err);
         }
       }

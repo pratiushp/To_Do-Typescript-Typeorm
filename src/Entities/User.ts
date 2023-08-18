@@ -12,23 +12,25 @@ export class User extends BaseEntity {
 
     @Column()
     email!: string;
-
+    
     @Column()
     password!: string;
     
     @Column({nullable: true})
     resetToken!: string;
 
-    @OneToMany(() => Task, (task) => task.user)
+    @OneToMany(() => Task, (task) => task.userAssignedBy)
     task!: Task[];
 
-    @OneToMany(() => Task, (task) => task.userAssignedBY)
+    @OneToMany(() => Task, (task) => task.userAssignedTo)
     taskAssignedBy!: Task[];
-
 
     @ManyToMany(() => Role,{eager:true})
     @JoinTable()
-     role! : Role[]
-
-  
+    role!: Role[]
+    
+    @Column({default: true})
+    status!: boolean
+    
+    
 }

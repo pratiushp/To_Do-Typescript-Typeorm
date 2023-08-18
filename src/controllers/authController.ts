@@ -1,25 +1,30 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
 import { User } from '../Entities/User';
 import { comparePasswords, hashPassword } from "../helper/authHelper";
 import { generateToken } from "../helper/jwtUtils";
 import jwt from "jsonwebtoken"
 import { sendMail } from "../helper/sendMail";
-
-
-
-
+import { successResponse } from '../helper/successResponse';
+import { errorResponse } from '../helper/errorResponse';
 
 const RESET_SECRET = "typescriptormsequelizepractice"
 
 
-
+//global error handling
+//global success response
 
 //Register User
 export const registerUser = async (req: Request, res: Response) => {
-  const userRepository = getRepository(User);
+  const userRepository = (User);
 
   const { name, email, password } = req.body;
+
+  const existUser = await userRepository.findOne({ where: { email } })
+  
+  if (existUser) {
+    const errors = errorResponse("User Already Exist");
+    return res.status(409).send(errors);
+  }
 
   const hashedPassword = await hashPassword(password);
 
@@ -31,21 +36,21 @@ export const registerUser = async (req: Request, res: Response) => {
 
   try {
     await userRepository.save(newUser);
-    res.status(201).send({
-      success: true,
-      message: "User registered successfully",
-      newUser,
-    });
+
+    const success = successResponse("User Register Successfully", newUser);
+    res.status(200).send(success);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred" });
+    const errors = errorResponse("Internal Server Error");
+    res.status(500).send(errors);
+  
   }
 };
 
 
 //Login Controller
 export const loginUser = async (req: Request, res: Response) => {
-  const userRepository = getRepository(User);
+  const userRepository = (User);
 
   const { email, password } = req.body;
 
@@ -59,74 +64,64 @@ export const loginUser = async (req: Request, res: Response) => {
     const passwordMatches = await comparePasswords(password, user.password);
 
     if (!passwordMatches) {
-      return res.status(401).json({ message: "Authentication failed" });
+      const errorRes = errorResponse("Invalid Password");
+      return res.status(400).send(errorRes);
     }
     console.log(user.name)
     const token = generateToken(user.id, user.role.map(role=>role.role_name));
 
-    res.status(200).json({
-      success: true,
-      message: "Login Success",
-      token,
-    });
+const success= successResponse("Login Successful", token)
+res.status(200).send(success);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "An error occurred" });
+    const errors = errorResponse("Internal Server Error");
+    res.status(500).send(errors);
   }
 };
 
 
-//Get all user
+// Get all users
 export const getallUser = async (req: Request, res: Response) => {
   try {
-    
-    const users = await User.find()
+    const users = await User.find();
 
+    // Exclude  password, role and  reset token
+    const userDet = users.map(user => {
+      const { password, role, resetToken, ...userDet } = user;
+      return userDet;
+    });
 
-    return res.status(200).send({
-      success: true,
-      message: "Successfully get all users",
-      users
-    })
-
+    const success = successResponse("Successfully get all users", userDet);
+    return res.status(200).send(success);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "An error occurred",
-      error
-    });
+    const errors = errorResponse("Error in getting all Users");
+    res.status(500).json(errors);
   }
-}
+};
 
 
-export const getSingleUser =async (req:any, res: Response) => {
+//get Single User
+export const getSingleUser = async (req: any, res: Response) => {
   try {
-    const userId = req.params.id
+    const userId = req.params.id;
 
-    const user = await User.findOne({ where: { id: userId } })
-    
+    const user = await User.findOne({ where: { id: userId } });
+
     if (!user) {
       return res.status(404).send("User Not Found");
     }
+    const { password, role, resetToken, ...userDet } = user;
 
-    return res.status(200).send({
-      success: true,
-      messasge: "Single User Retrieve Successfully",
-      user,
-    })
-
+    const success = successResponse("Single User Retreive Successfully", userDet)
+    return res.status(200).send(success);
 
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in retrieving Single User",
-      error
-
-    })
+   const err = errorResponse("Error In retrieving Sing;e User", error)
+    res.status(500).send(err);
   }
-}
+};
+
 
 const createResetToken = (user: any) => {
   return jwt.sign({ id: user.id }, RESET_SECRET, {
@@ -140,7 +135,8 @@ export const forgetPassword = async (req: Request, res: Response) => {
     const user = await User.findOne({where: {email: email} }); 
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      const err = errorResponse("User Not found")
+      return res.status(404).json(err);
     }
 
     const resetToken = createResetToken(user);
@@ -154,18 +150,12 @@ export const forgetPassword = async (req: Request, res: Response) => {
       subject: 'Reset your password',
       message: `Hello ${user.name}, Click on the link to reset your password: ${resetUrl}`,
     });
-
-    res.status(201).json({
-      success: true,
-      message: `Please check your email: ${user.email} to reset your password`,
-    });
+    const success = successResponse(`Please check your email: ${user.email} to reset your password`)
+    res.status(201).json(success);
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error in sending mail',
-      error,
-    });
+    const err = errorResponse("Error in sending Mail", error)
+    res.status(500).send(err);
   }
 };
 
@@ -181,21 +171,29 @@ export const resetPasswordController = async (req: Request, res: Response) => {
     const user = await User.findOne({ where: { id: decoded.id } });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      const err = errorResponse("User Not found")
+      return res.status(404).json(err);
     }
 
-    user.password = newPassword;
+    const pass = await hashPassword(newPassword)
+    
+
+
+
+    user.password = pass;
     user.resetToken = undefined;
     await user.save();
     // console.log("user::::", user);
 
-    return res.status(200).send({
-      success: true,
-      message: "Password reset successful",
-    });
+  
+      const success = successResponse("Password reset successful")
+      return res.status(200).json(success);
+    
+
   } catch (error) {
     console.log(error);
-    return res.status(400).json({ message: "Invalid reset token" });
+    const err= errorResponse("Invalid Or Expired Reset Token")
+    return res.status(400).json(err);
   }
 };
 
