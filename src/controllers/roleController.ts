@@ -1,11 +1,12 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Role } from './../Entities/Role';
 import { User } from "../Entities/User";
-import { successResponse } from "../helper/successResponse";
-import { errorResponse } from "../helper/errorResponse";
+import successMiddleware from "../helper/successResponse";
+import ErrorHandler from "../utils/ErrorHandler";
 
 
-export const addRole =async (req:Request, res: Response) => {
+
+export const addRole =async (req:Request, res: Response, next:NextFunction) => {
      const roleRepository = (Role); //Database Operation used
    
     try {
@@ -14,19 +15,20 @@ export const addRole =async (req:Request, res: Response) => {
         const roledef =  roleRepository.create({
             role_name: roleName,
         }).save()
-        const success = successResponse("Role Added Successfully", roledef);
-        res.status(201).send(success);
+        successMiddleware({
+            message: "Role Added Succesfully",
+            data: roledef,
+          }, req, res, next);
         
     } catch (error) {
         console.log(error)
-        const errorR = errorResponse("Internal Server Error", error);
-    res.status(500).send(errorR);
+        return next(new ErrorHandler(error.message, 500))
         
     }
 }
 
 
-export const updateRole = async (req: Request, res: Response) => {
+export const updateRole = async (req: Request, res: Response, next: NextFunction) => {
     const roleRepository = Role;
     const userRepository = User;
   
@@ -37,84 +39,58 @@ export const updateRole = async (req: Request, res: Response) => {
       const user = await userRepository.findOne({ where: { id: userid } });
   
       if (!role || !user) {
-        const notFoundResponse = errorResponse("Role or User not found");
-        return res.status(404).send(notFoundResponse);
+        const notFoundError = new ErrorHandler("Role or User not found", 404);
+        return next(notFoundError);
       }
   
       user.role = [role];
       await user.save();
   
-      const success = successResponse("User Added to Role Successfully");
-      res.status(200).send(success);
+      successMiddleware({
+        message: "User Added with Role",
+      }, req, res, next);
+  
     } catch (error) {
       console.log(error);
-      const err = errorResponse("Internal Server Error", error);
-      res.status(500).send(err);
+      return next(new ErrorHandler(error.message, 500));
     }
   };
 
 
-export const getSupervisor = async (req: Request, res: Response) => {
-    const { type } = req.query
-    //type=supervisor||admin||user
-      const roleId = 2; // Role ID  of Supervisor
-  
-      try {
-        const userRepository = (User);
-        const usersWithRole = await User
-          .createQueryBuilder("user")
-          .leftJoinAndSelect("user.role", "role") 
-          .where("role.id = :roleId", { roleId })
-          .getMany();
-          const success = successResponse("Successfully get User whose role is Supervisor ", usersWithRole)
-          res.status(200).send(success);
-      } catch (error) {
-          console.log(error);
-          const err = errorResponse("Error in fetching the User whose Role is Supervisor")
-          res.status(500).json(err);
-      }
-    }
-  
 
-    export const getAdmin = async(req: Request, res: Response)=> {
-        const roleId = 1; 
-    
-        try {
-          const userRepository = (User);
-          const usersWithRole = await User
-            .createQueryBuilder("user")
-            .leftJoinAndSelect("user.role", "role") 
-            .where("role.id = :roleId", { roleId })
+      
+export const getUsersByRole = async (req: Request, res: Response, next: NextFunction) => {
+     try {
+        const roleId = parseInt(req.query.role as string);
+      
+          if (!roleId) {
+            return next(new ErrorHandler('Role ID Not Found', 404));
+            
+          }
+      
+          const role = await Role.findOne({ where: { id: roleId } });
+      
+          if (!role) {
+            return next(new ErrorHandler('Role ID Not Found', 404));
+          }
+      
+            const usersWithRole = await User.createQueryBuilder('user')
+              .select(["user.id", 'user.name', 'user.email'])
+            .leftJoinAndSelect('user.role', 'role')
+            .where('role.id = :roleId', { roleId: role.id })
             .getMany();
-    
-            const success = successResponse("Successfully get User whose role is Admin ", usersWithRole)
-            res.status(200).send(success);
+      
+          successMiddleware(
+            {
+              message: 'Users with  role retrieved successfully',
+              data: usersWithRole,
+            },
+            req,
+            res,
+            next
+          );
         } catch (error) {
-            console.log(error);
-            const err = errorResponse("Error in fetching the User whose Role is Admin")
-            res.status(500).json(err);
+          console.error(error);
+          return next(new ErrorHandler(error.message, 500));
         }
-      }
-    
-
-
-      export const getUser = async(req: Request, res: Response)=> {
-        const roleId = 3; 
-    
-        try {
-          const userRepository = (User);
-          const usersWithRole = await User
-            .createQueryBuilder("user")
-            .leftJoinAndSelect("user.role", "role") 
-            .where("role.id = :roleId", { roleId })
-            .getMany();
-    
-
-            const success = successResponse("Successfully get User whose role is User ", usersWithRole)
-            res.status(200).send(success);
-        } catch (error) {
-            console.log(error);
-            const err = errorResponse("Error in fetching the User whose Role is User")
-            res.status(500).json(err);
-        }
-      }
+      };

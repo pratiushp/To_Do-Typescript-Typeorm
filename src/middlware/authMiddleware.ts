@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { User } from "../Entities/User";
 import { Role } from '../Entities/Role';
 import jwt from "jsonwebtoken"
+import { ReqUser } from "./req";
 
-interface ReqUser<p,q,r,s> extends Request<p,q,r,s>{
-    user?: User;
-}
+// interface ReqUser<p,q,r,s> extends Request<p,q,r,s>{
+//     user?: User;
+// }
 
 // Protect Route
 const JWT_SECRET = "typescriptormsequelizepractice";

@@ -1,10 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Task } from '../Entities/Task';
+import { User } from "../Entities/User";
+import successMiddleware from './../helper/successResponse';
+import ErrorHandler from "../utils/ErrorHandler";
 
 
 
 
-export const addTaskController = async (req: any, res: Response) => {
+export const addTaskController = async (req: any, res: Response, next: NextFunction) => {
     try {
         const { task_name, assigned_to } = req.body;
 
@@ -25,29 +28,20 @@ export const addTaskController = async (req: any, res: Response) => {
 
 
         await task.save();
-
-
-
-    
-        res.status(201).send({
-            success: true,
+        successMiddleware({
             message: "Task Added Successfully",
-            task,
-        });
+            data: task,
+          }, req, res, next);
     } catch (error) {
     
         console.log(error);
-        res.status(500).send({
-            success: false,
-            message: "Error adding task",
-            error,
-        });
+        return next(new ErrorHandler("Error adding task", 500));
     }
 };
 
 
 
-export const editTaskController =async (req:any, res: Response) => {
+export const editTaskController =async (req:any, res: Response, next: NextFunction) => {
     try {
         const taskId = req.params.Taskid;
         const { task_name, assigned_to } = req.body;
@@ -55,30 +49,21 @@ export const editTaskController =async (req:any, res: Response) => {
         const task = await Task.findOne({where: {id: taskId}});
 
         if (!task) {
-            return res.status(404).send({
-                success: false,
-                message: "Task not found.",
-              }); 
+            return next(new ErrorHandler("not Found Task", 404));
         }
 
         task.task_name = task_name;
         task.userAssignedTo = assigned_to;
         const updatedTask = await task.save();
 
-        res.status(200).send({
-            success: true,
-            message: "Task updated successfully",
-            task: updatedTask,
-          });
+        successMiddleware({
+            message: "Task Updated Successfully",
+            data: updatedTask,
+          }, req, res, next);
         
     } catch (error) {
         console.log(error)
-        res.status(500).send({
-            success: false,
-            message: "Error in Updating Task Error",
-            error,
-        })
-        
+        return next(new ErrorHandler(error.message, 500))
     }
 }
 
@@ -111,99 +96,98 @@ export const delTask =async (req:any, res: Response) => {
 }
 
 
-export const getSingleTaskController =async (req:any, res:Response) => {
+export const getSingleTaskController =async (req:any, res:Response, next: NextFunction) => {
     try {
         const taskId = req.params.id;
 
         const task = await Task.findOne({where: {id:taskId}})
         if (!taskId) {
-            return res.status(404).send("Not Found Task");
+            const err = ("Task Not Found")
+            return res.status(404).send(err);
 
         }
 
-        return res.status(200).send({
-            success: true,
-            message: "Successfully Retrive Task",
-            task,
-        })
+        successMiddleware({
+            message: "Succesfully Single Get Task",
+            data: task,
+          }, req, res, next);
         
     } catch (error) {
         console.log(error)
-        res.status(500).send({
-            success: false,
-            message: "Error in Retrieving Task Error",
-            error,
-        })
+        return next(new ErrorHandler(error.message, 500))
     }
 }
 
-export const getAllTask = async (req:any, res: Response) => {
+export const getAllTask = async (req:any, res: Response, next: NextFunction) => {
     try {
       
-        const task = await Task.find()
+        const task = await Task.find({ relations: ["userAssignedTo"] })
         
 
-        return res.status(200).send({
-            success: true,
-            message: "Successfully Retrieve All Task",
-            task,
-        })
+        successMiddleware({
+            message: "Task Retreive Succesfully",
+            data: task,
+          }, req, res, next);
     } catch (error) {
         console.log(error);
-        res.status(500).send({
-            success: false,
-            message: "Failed to retrieve all task",
-            error,
-        })
+        return next(new ErrorHandler(error.message, 500))
     }
 }
 
-// export const getTasksAssignedByUser = async (req: Request, res: Response) => {
-//     try {
-//       const assignedByUserId = req.user?.id; 
+
+export const getAllAdminTasks = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      
+        const Admintask = await Task.find({
+            relations: ["userAssignedBy"], });
   
-//       if (!assignedByUserId) {
-//         return res.status(401).send("Unauthorized");
-//       }
+      const result = Admintask.map(task => {
+        return {
+          task_name: task.task_name,
+          admin_name: task.userAssignedBy.name,
+        };
+      });
   
-//       const tasks = await Task.find({ user: assignedByUserId });
+      successMiddleware({
+        message: "Retrieve All Task and Admin",
+        data: result,
+      }, req, res, next);
+    } catch (error) {
+      console.error(error);
+      return next(new ErrorHandler(error.message, 500))
+    }
+};
   
-//       return res.status(200).send({
-//         success: true,
-//         message: "Tasks assigned by user retrieved successfully",
-//         tasks,
-//       });
-//     } catch (error) {
-//       console.log(error);
-//       res.status(500).send({
-//         success: false,
-//         message: "Error while fetching tasks assigned by user",
-//         error,
-//       });
-//     }
-//   };
+
+
+export const getTasksAssignedByLoggedInAdmin = async (req: any, res: Response, next:NextFunction) => {
+    try {
+        const adminId = req.user?.id; 
+        
+        // console.log(adminId)
+  
+        if (!adminId) {
+          const err= ("Unauhthorized Access")
+        return res.status(401).json(err);
+      }
+  
+      
+      const tasksAssignedByAdmin = await Task.find({  relations: ["userAssignedBy"], where: {userAssignedBy:{id:adminId}}});
+
+        
+        // console.log(tasksAssignedByAdmin)
+        successMiddleware({
+          message: "Succesfully get Task Assigned by Admin",
+          data: tasksAssignedByAdmin,
+        }, req, res, next);
+    } catch (error) {
+      console.error(error); 
+      return next(new ErrorHandler(error.message, 500))
+    }
+  };
 
 //api for my task
 
 //api for getting task that i assigned
 
 //add search, pagination and sort in above api
-
-// export const paginationController =async (req:any, res:Response) => {
-//     try {
-//         const limitValue = req.query.limit || 2;
-//         const currentPage = req.query.page || 1;
-
-//         const skipValue = (currentPage - 1) * limitValue;
-//         const tasks = await Task.find().limit(limitValue).skip(skipValue);
-
-
-//     } catch (error) {
-//         console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       message: "Error while fetching tasks",
-//       error,
-//     });
-//     }
-// }

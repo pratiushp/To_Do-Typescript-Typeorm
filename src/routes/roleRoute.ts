@@ -1,14 +1,21 @@
 import express from "express";
-import { addRole, getAdmin, getSupervisor, getUser, updateRole } from "../controllers/roleController";
+import { addRole, getUsersByRole, updateRole } from '../controllers/roleController';
 import { isAdmin, requireSignIn } from "../middlware/authMiddleware";
+import { deleteUser, getSingleUser, getUsersWithPagination } from "../controllers/authController";
 
 const router = express.Router()
 
 //Role Routes
 router.post("/add-role", addRole)
-router.post("/update-role", requireSignIn, isAdmin, updateRole)
-router.get("/get-supervisor", requireSignIn, isAdmin, getSupervisor)
-router.get("/get-admin", requireSignIn, isAdmin, getAdmin)
-router.get("/get-user", requireSignIn, isAdmin, getUser)
+router.post("/update-role",isAdmin, updateRole)
+// router.get("/get-supervisor", requireSignIn, isAdmin, getSupervisor)
+// router.get("/get-admin", requireSignIn, isAdmin, getAdmin)
+// router.get("/get-user", requireSignIn, isAdmin, getUser)
+router.get("/role-user", getUsersByRole)
+
+
+router.get("/get-user/:id", isAdmin, getSingleUser);
+router.get("/get-all-user",  isAdmin, getUsersWithPagination);
+router.put("/del-user/:id",   deleteUser)
 
 export default router

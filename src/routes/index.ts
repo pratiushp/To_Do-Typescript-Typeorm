@@ -1,29 +1,35 @@
 import express from "express";
 import authRoutes from "./authRoute";
-import roleRoutes from "./roleRoute"
+import roleRoutes from "./roleRoute";
 import taskRoutes from "./taskRoute";
+import { requireSignIn } from "../middlware/authMiddleware";
 
 const router = express.Router();
-
-
 
 const defaultRoutes = [
   {
     path: "/",
     route: authRoutes,
-    },
-    {
-        path: "/",
-        route: roleRoutes,
-      },
+    requireSignIn: false, // No requireSignIn for these routes
+  },
+  {
+    path: "/",
+    route: roleRoutes,
+    requireSignIn: true, 
+  },
   {
     path: "/",
     route: taskRoutes,
+    requireSignIn: true, 
   },
 ];
-//require sign in common except for login and forgot password
+
 defaultRoutes.forEach((route) => {
-  router.use(route.path, route.route);
+  if (route.requireSignIn) {
+    router.use(route.path, requireSignIn, route.route);
+  } else {
+    router.use(route.path, route.route);
+  }
 });
 
-export { router};
+export { router };
