@@ -1,6 +1,5 @@
-
 import nodemailer from "nodemailer";
-import { EmailMessage } from "../Entities/Email"; // Adjust the path based on your file structure
+import { EmailMessage } from "../Entities/Email"; 
 
 export const sendMail = async (options: any) => {
   const transporter = nodemailer.createTransport({

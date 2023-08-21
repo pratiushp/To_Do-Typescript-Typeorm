@@ -118,22 +118,49 @@ export const getSingleTaskController =async (req:any, res:Response, next: NextFu
     }
 }
 
-export const getAllTask = async (req:any, res: Response, next: NextFunction) => {
-    try {
+export const getAllTask = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 3;
+    const skip = (page - 1) * limit;
+    const search = req.query.search as string;
+
+    const task = Task.createQueryBuilder('task')
+      .select(['task.id', 'task.task_name'])
+      .leftJoinAndSelect('task.userAssignedBy', 'userAssignedBy')
+      .leftJoinAndSelect('task.userAssignedTo', 'userAssignedTo')
       
-        const task = await Task.find({ relations: ["userAssignedTo"] })
-        
 
-        successMiddleware({
-            message: "Task Retreive Succesfully",
-            data: task,
-          }, req, res, next);
-    } catch (error) {
-        console.log(error);
-        return next(new ErrorHandler(error.message, 500))
+    if (search) {
+      task.andWhere('task.task_name LIKE :search', { search: `%${search}%` });
     }
-}
 
+    const [tasks, totalCount] = await task
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    successMiddleware(
+      {
+        message: 'Task Retrieve Successfully with pagination and search',
+        data: {
+          tasks,
+          page,
+          totalCount,
+          totalPages,
+        },
+      },
+      req,
+      res,
+      next
+    );
+  } catch (error) {
+    console.log(error);
+    return next(new ErrorHandler(error.message, 500));
+  }
+};
 
 export const getAllAdminTasks = async (req: Request, res: Response, next: NextFunction) => {
     try {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Role } from './../Entities/Role';
-import { User } from "../Entities/User";
+import { User } from '../Entities/User';
 import successMiddleware from "../helper/successResponse";
 import ErrorHandler from "../utils/ErrorHandler";
 
@@ -29,33 +29,31 @@ export const addRole =async (req:Request, res: Response, next:NextFunction) => {
 
 
 export const updateRole = async (req: Request, res: Response, next: NextFunction) => {
-    const roleRepository = Role;
-    const userRepository = User;
-  
-    try {
-      const { userid, roleid } = req.body;
-  
-      const role = await roleRepository.findOne({ where: { id: roleid } });
-      const user = await userRepository.findOne({ where: { id: userid } });
-  
-      if (!role || !user) {
-        const notFoundError = new ErrorHandler("Role or User not found", 404);
-        return next(notFoundError);
-      }
-  
-      user.role = [role];
-      await user.save();
-  
-      successMiddleware({
-        message: "User Added with Role",
-      }, req, res, next);
-  
-    } catch (error) {
-      console.log(error);
-      return next(new ErrorHandler(error.message, 500));
-    }
-  };
+  try {
+    const { roleId, userId } = req.body;
 
+    const roleRepository = Role; 
+    const userRepository = User;
+
+    const role = await roleRepository.findOne({ where: { id: roleId } });
+    const user = await userRepository.findOne({ where: { id: userId }, relations: ['role'] });
+
+    if (!role || !user) {
+      return next(new ErrorHandler('Role or User not found', 404));
+    }
+
+    user.role = [role]; 
+    await userRepository.save(user); 
+
+    res.status(200).json({
+      message: 'User Added with Role',
+      
+    });
+  } catch (error) {
+    console.error(error);
+    return next(new ErrorHandler(error.message, 500));
+  }
+};
 
 
       

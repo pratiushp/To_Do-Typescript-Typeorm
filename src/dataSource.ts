@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
     username: "root",
     password: "Kathmandu1#",
     database: "application",
-    synchronize: false,
+    synchronize: true,
    
     entities: [Role, User, Task, EmailMessage],
     

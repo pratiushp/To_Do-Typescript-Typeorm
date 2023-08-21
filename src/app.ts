@@ -9,6 +9,7 @@ const PORT = 3000;
 
 
 app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true }));
 
    
 AppDataSource.initialize()

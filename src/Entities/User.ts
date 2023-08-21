@@ -1,9 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne} from "typeorm";
 import { Role } from "./Role";
 import { Task } from "./Task";
+import { base } from "./BaseEntity";
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends base {
     @PrimaryGeneratedColumn()
     id!: number;
 

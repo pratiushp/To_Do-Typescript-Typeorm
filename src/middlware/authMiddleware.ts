@@ -3,6 +3,7 @@ import { User } from "../Entities/User";
 import { Role } from '../Entities/Role';
 import jwt from "jsonwebtoken"
 import { ReqUser } from "./req";
+import ErrorHandler from "../utils/ErrorHandler";
 
 // interface ReqUser<p,q,r,s> extends Request<p,q,r,s>{
 //     user?: User;
@@ -28,7 +29,7 @@ export const requireSignIn = async (req: ReqUser<any,any,any,any>, res: Response
         next();
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        return next(new ErrorHandler(error.message,500))
     }
 }
 
@@ -40,14 +41,14 @@ export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
         const admin = req.user?.role;
 
         if (!admin) {
-            return res.status(401).json({message:"Unauthorized Access"})
+            return next(new ErrorHandler("Unauthorized Access", 401))
           
         } else {
             next()
         }
         
     } catch (error) {
-        return res.status(500).json({ message: "Internal server error" });
+        return next(new ErrorHandler(error.message, 500))
     }
 };
 
@@ -58,13 +59,13 @@ export const isSupervisor = async (req: any, res: Response, next: NextFunction) 
         const supervisor = req.user?.role;
 
         if (!supervisor) {
-            return res.status(401).json({message:"Unauthorized Access"})
+            return next(new ErrorHandler("Unauthorized Access", 401))
           
         } else {
             next()
         }
         
     } catch (error) {
-        return res.status(500).json({ message: "Internal server error" });
+        return next(new ErrorHandler(error.message, 500))
     }
 };

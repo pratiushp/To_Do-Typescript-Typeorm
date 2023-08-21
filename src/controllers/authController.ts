@@ -59,7 +59,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     const user = await userRepository.findOne({ where: { email, status: true } });
 
     if (!user) {
-      return res.status(401).json({ message: "User not Found or Inactive" });
+      return res.status(401).json({ message: "User not Found" });
     }
 
     const passwordMatches = await comparePasswords(password, user.password);
@@ -155,8 +155,7 @@ export const resetPasswordController = async (req: Request, res: Response, next:
     const user = await User.findOne({ where: { id: decoded.id } });
 
     if (!user) {
-      const err = ("User Not found")
-      return res.status(404).json(err);
+      return next(new ErrorHandler("User Not Found", 404))
     }
 
     const pass = await hashPassword(newPassword)
@@ -181,22 +180,22 @@ export const resetPasswordController = async (req: Request, res: Response, next:
   }
 };
 
-export const getUsersWithPagination = async (req: Request, res: Response, next:NextFunction) => {
+export const getUsersWithPagination = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 3;
     const skip = (page - 1) * limit;
     const search = req.query.search as string;
 
-    const userRepository = User.createQueryBuilder('user')
-      .select(['user.id', 'user.name', 'user.email'])
-      .where('user.status = :status', { status: true });
+    const user = User.createQueryBuilder("user")
+      .select(["user.id", "user.name", "user.email"])
+      .where("user.status = :status", { status: true });
 
     if (search) {
-      userRepository.andWhere('(user.name LIKE :search)', { search: `%${search}%` });
+      user.andWhere("(user.name LIKE :search)", { search: `%${search}%` });
     }
 
-    const [users, totalCount] = await userRepository
+    const [users, totalCount] = await user
       .skip(skip)
       .take(limit)
       .getManyAndCount();
@@ -205,7 +204,7 @@ export const getUsersWithPagination = async (req: Request, res: Response, next:N
 
     res.status(200).json({
       success: true,
-      message: 'Users retrieved successfully with pagination and search',
+      message: "Users retrieved successfully with pagination and search",
       users,
       page,
       totalPages,
@@ -213,7 +212,7 @@ export const getUsersWithPagination = async (req: Request, res: Response, next:N
     });
   } catch (error) {
     console.error(error);
-    return next(new ErrorHandler(error.message, 500))
+    return next(new ErrorHandler(error.message, 500));
   }
 };
 

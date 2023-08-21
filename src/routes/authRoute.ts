@@ -1,9 +1,8 @@
 import express from "express"
-import {  deleteUser, forgetPassword, getSingleUser, loginUser, registerUser, resetPasswordController } from "../controllers/authController"
+import {   forgetPassword, loginUser, registerUser, resetPasswordController } from "../controllers/authController"
 
-import { addTaskValidateRules, loginValidationRules, registerValidationRules, validate } from "../middlware/Validations";
-import {  addTaskController, delTask, editTaskController, getAllTask, getSingleTaskController } from "../controllers/taskController";
-import { isAdmin, isSupervisor, requireSignIn } from "../middlware/authMiddleware";
+import { loginValidationRules, registerValidationRules, validate } from "../middlware/Validations";
+
 
 
 
