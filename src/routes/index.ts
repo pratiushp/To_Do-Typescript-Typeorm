@@ -11,7 +11,7 @@ const defaultRoutes = [
   {
     path: "/",
     route: authRoutes,
-    requireSignIn: false, // No requireSignIn for these route
+    requireSignIn: false, 
   },
 
   {

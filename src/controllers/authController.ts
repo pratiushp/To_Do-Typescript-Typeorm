@@ -59,14 +59,13 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     const user = await userRepository.findOne({ where: { email, status: true } });
 
     if (!user) {
-      return res.status(401).json({ message: "User not Found" });
+      return next(new ErrorHandler("User Not Found", 400))
     }
 
     const passwordMatches = await comparePasswords(password, user.password);
 
     if (!passwordMatches) {
-      const errorRes = ("Invalid Password");
-      return res.status(400).send(errorRes);
+      return next(new ErrorHandler("Invalid Password", 400))
     }
 
     const token = generateToken(user.id, user.role.map(role => role.role_name));
@@ -117,8 +116,7 @@ export const forgetPassword = async (req: Request, res: Response, next: NextFunc
     const user = await User.findOne({where: {email: email} }); 
 
     if (!user) {
-      const err = ("User Not found")
-      return res.status(404).json(err);
+      return next(new ErrorHandler("User Not Found", 400))
     }
 
     const resetToken = createResetToken(user);
@@ -155,7 +153,7 @@ export const resetPasswordController = async (req: Request, res: Response, next:
     const user = await User.findOne({ where: { id: decoded.id } });
 
     if (!user) {
-      return next(new ErrorHandler("User Not Found", 404))
+      return next(new ErrorHandler("User Not Found", 400))
     }
 
     const pass = await hashPassword(newPassword)
@@ -195,6 +193,8 @@ export const getUsersWithPagination = async (req: Request, res: Response, next: 
       user.andWhere("(user.name LIKE :search)", { search: `%${search}%` });
     }
 
+    user.orderBy("user.name", "ASC");
+    
     const [users, totalCount] = await user
       .skip(skip)
       .take(limit)

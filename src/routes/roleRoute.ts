@@ -1,7 +1,7 @@
 import express from "express";
 import { addRole, getUsersByRole, updateRole } from '../controllers/roleController';
 import { isAdmin, requireSignIn } from "../middlware/authMiddleware";
-import { deleteUser, getSingleUser, getUsersWithPagination } from "../controllers/authController";
+
 
 const router = express.Router()
 

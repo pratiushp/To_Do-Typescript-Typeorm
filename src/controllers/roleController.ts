@@ -39,7 +39,7 @@ export const updateRole = async (req: Request, res: Response, next: NextFunction
     const user = await userRepository.findOne({ where: { id: userId }, relations: ['role'] });
 
     if (!role || !user) {
-      return next(new ErrorHandler('Role or User not found', 404));
+      return next(new ErrorHandler('Role or User not found', 400));
     }
 
     user.role = [role]; 
@@ -62,14 +62,14 @@ export const getUsersByRole = async (req: Request, res: Response, next: NextFunc
         const roleId = parseInt(req.query.role as string);
       
           if (!roleId) {
-            return next(new ErrorHandler('Role ID Not Found', 404));
+            return next(new ErrorHandler('Role ID Not Found', 400));
             
           }
       
           const role = await Role.findOne({ where: { id: roleId } });
       
           if (!role) {
-            return next(new ErrorHandler('Role ID Not Found', 404));
+            return next(new ErrorHandler('Role ID Not Found', 400));
           }
       
             const usersWithRole = await User.createQueryBuilder('user')

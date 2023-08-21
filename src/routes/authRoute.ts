@@ -1,9 +1,6 @@
 import express from "express"
 import {   forgetPassword, loginUser, registerUser, resetPasswordController } from "../controllers/authController"
-
 import { loginValidationRules, registerValidationRules, validate } from "../middlware/Validations";
-
-
 
 
 const router = express.Router();

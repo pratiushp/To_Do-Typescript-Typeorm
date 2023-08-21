@@ -126,14 +126,15 @@ export const getAllTask = async (req: any, res: Response, next: NextFunction) =>
     const search = req.query.search as string;
 
     const task = Task.createQueryBuilder('task')
-      .select(['task.id', 'task.task_name'])
+      .select(['task.id', 'task.task_name', 'task.userAssignedBy', 'task.userAssignedTo'])
       .leftJoinAndSelect('task.userAssignedBy', 'userAssignedBy')
-      .leftJoinAndSelect('task.userAssignedTo', 'userAssignedTo')
-      
+      .leftJoinAndSelect('task.userAssignedTo', 'userAssignedTo');
 
     if (search) {
       task.andWhere('task.task_name LIKE :search', { search: `%${search}%` });
     }
+
+    task.orderBy('task.task_name', 'ASC'); 
 
     const [tasks, totalCount] = await task
       .skip(skip)
@@ -144,7 +145,7 @@ export const getAllTask = async (req: any, res: Response, next: NextFunction) =>
 
     successMiddleware(
       {
-        message: 'Task Retrieve Successfully with pagination and search',
+        message: 'Task Retrieve Successfully with pagination, search, and alphabetical sort',
         data: {
           tasks,
           page,
@@ -161,6 +162,7 @@ export const getAllTask = async (req: any, res: Response, next: NextFunction) =>
     return next(new ErrorHandler(error.message, 500));
   }
 };
+
 
 export const getAllAdminTasks = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -194,8 +196,7 @@ export const getTasksAssignedByLoggedInAdmin = async (req: any, res: Response, n
         // console.log(adminId)
   
         if (!adminId) {
-          const err= ("Unauhthorized Access")
-        return res.status(401).json(err);
+          return next(new ErrorHandler("unauthorized Access", 401))
       }
   
       
@@ -218,3 +219,19 @@ export const getTasksAssignedByLoggedInAdmin = async (req: any, res: Response, n
 //api for getting task that i assigned
 
 //add search, pagination and sort in above api
+
+//fileHandling (fs module of node js)
+//insert photo of user
+//if user update the photo, delete the previous photo from uploaded folder
+//add task file to task repo
+//accept pdf,docx,excel,images
+//same, if deleted remove the file
+//arrange the files destination directory as per its user id
+// meaning: folder structure be like {user_id}/user_photo or {user_id}/task_file
+//do this all without using multer path
+//while getting the file and removing the file, use fs module
+
+//readFile vs readFileSync
+
+
+//Need to create Separate API for Image Upload 

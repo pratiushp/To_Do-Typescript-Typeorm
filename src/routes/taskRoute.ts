@@ -1,5 +1,5 @@
 import express from "express";
-import { isAdmin, isSupervisor, requireSignIn } from "../middlware/authMiddleware";
+import { isAdmin, isSupervisor } from "../middlware/authMiddleware";
 import { addTaskController, delTask, editTaskController, getSingleTaskController, getAllTask, getAllAdminTasks, getTasksAssignedByLoggedInAdmin } from '../controllers/taskController';
 import { addTaskValidateRules, validate } from "../middlware/Validations";
 
