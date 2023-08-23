@@ -4,6 +4,8 @@ import { User } from "./Entities/User";
 import { Task } from "./Entities/Task";
 import { EmailMessage } from "./Entities/Email";
 import { Upload } from "./Entities/Upload";
+import { TaskFile } from "./Entities/taskFile";
+// import { TaskFile } from "./Entities/taskFile";
 // import { Upload } from "./Entities/Upload";
 
 export const AppDataSource = new DataSource({
@@ -15,7 +17,7 @@ export const AppDataSource = new DataSource({
     database: "application",
     synchronize: true,
    
-    entities: [Role, User, Task, EmailMessage, Upload]
+    entities: [Role, User, Task, EmailMessage, Upload, TaskFile]
     
     // logging: false,
 })

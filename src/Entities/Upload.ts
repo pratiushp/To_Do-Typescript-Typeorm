@@ -7,7 +7,7 @@ export class Upload extends base {
   @Column()
   picturePath!: string;
 
-  @ManyToOne(() => User, (user) => user.upload)
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user!: User;
 }

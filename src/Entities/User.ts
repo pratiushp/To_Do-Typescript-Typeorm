@@ -3,6 +3,7 @@ import { Role } from "./Role";
 import { Task } from "./Task";
 import { base } from "./BaseEntity";
 import { Upload } from "./Upload"; // Import the Upload entity
+import { TaskFile } from "./taskFile";
 
 @Entity()
 export class User extends base {
@@ -34,6 +35,5 @@ export class User extends base {
     @Column({ default: true })
     status!: boolean;
 
-    @ManyToOne(() => Upload, (upload) => upload.user) 
-    upload!: Upload;
+   
 }
