@@ -3,6 +3,8 @@ import { Role } from "./Entities/Role";
 import { User } from "./Entities/User";
 import { Task } from "./Entities/Task";
 import { EmailMessage } from "./Entities/Email";
+import { Upload } from "./Entities/Upload";
+// import { Upload } from "./Entities/Upload";
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -13,7 +15,7 @@ export const AppDataSource = new DataSource({
     database: "application",
     synchronize: true,
    
-    entities: [Role, User, Task, EmailMessage],
+    entities: [Role, User, Task, EmailMessage, Upload]
     
     // logging: false,
 })

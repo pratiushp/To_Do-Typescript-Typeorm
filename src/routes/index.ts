@@ -3,6 +3,7 @@ import authRoutes from "./authRoute";
 import roleRoutes from "./roleRoute";
 import taskRoutes from "./taskRoute";
 import userAuth from "./userAuth";
+import uploadRoutes from "./uploadRoute"
 import { requireSignIn } from "../middlware/authMiddleware";
 
 const router = express.Router();
@@ -29,6 +30,11 @@ const defaultRoutes = [
   {
     path: "/",
     route: taskRoutes,
+    requireSignIn: true, 
+  },
+  {
+    path: "/",
+    route: uploadRoutes,
     requireSignIn: true, 
   },
 ];

@@ -3,6 +3,7 @@ import {router} from "./routes/index"
 import bodyParser from "body-parser";
 import { AppDataSource } from "./dataSource";
 import ErrorHandler from "./utils/ErrorHandler";
+// import fileUpload from "express-fileupload"
 import { errorConverter, notFound } from "./utils/error";
 import ApiError from "./utils/apiError";
 
@@ -13,6 +14,7 @@ const PORT = 3000;
 
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }));
+// app.use(fileUpload())
 
    
 AppDataSource.initialize()
@@ -31,9 +33,9 @@ AppDataSource.initialize()
     });
 
     //handle 404 not found error
-app.use((req: Request, res: Response) => {
-  res.status(404).json("404 Not Found Endpoint");
-})
+// app.use((req: Request, res: Response) => {
+//   res.status(404).json("404 Not Found Endpoint");
+// })
     
 
 app.use(notFound)

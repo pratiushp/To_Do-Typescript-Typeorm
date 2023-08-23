@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToMany, JoinTable, OneToMany, JoinColumn, ManyToOne} from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, OneToMany, ManyToOne } from "typeorm";
 import { Role } from "./Role";
 import { Task } from "./Task";
 import { base } from "./BaseEntity";
+import { Upload } from "./Upload"; // Import the Upload entity
 
 @Entity()
 export class User extends base {
@@ -17,7 +18,7 @@ export class User extends base {
     @Column()
     password!: string;
     
-    @Column({nullable: true})
+    @Column({ nullable: true })
     resetToken!: string;
 
     @OneToMany(() => Task, (task) => task.userAssignedBy)
@@ -26,12 +27,13 @@ export class User extends base {
     @OneToMany(() => Task, (task) => task.userAssignedTo)
     taskAssignedBy!: Task[];
 
-    @ManyToMany(() => Role,{eager:true})
+    @ManyToMany(() => Role, { eager: true })
     @JoinTable()
-    role!: Role[]
+    role!: Role[];
     
-    @Column({default: true})
-    status!: boolean
-    
-    
+    @Column({ default: true })
+    status!: boolean;
+
+    @ManyToOne(() => Upload, (upload) => upload.user) 
+    upload!: Upload;
 }
