@@ -5,6 +5,7 @@ import taskRoutes from "./taskRoute";
 import userAuth from "./userAuth";
 import uploadRoutes from "./uploadRoute"
 import { requireSignIn } from "../middlware/authMiddleware";
+// import imageRoutes from "./imageRoute";
 
 const router = express.Router();
 
@@ -37,6 +38,12 @@ const defaultRoutes = [
     route: uploadRoutes,
     requireSignIn: true, 
   },
+
+  // {
+  //   path: "/",
+  //   route: imageRoutes,
+  //   requireSignIn: true,
+  // },
 ];
 
 defaultRoutes.forEach((route) => {

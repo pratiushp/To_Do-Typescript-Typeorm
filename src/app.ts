@@ -5,6 +5,7 @@ import { AppDataSource } from "./dataSource";
 import ErrorHandler from "./utils/ErrorHandler";
 // import fileUpload from "express-fileupload"
 import { errorConverter, notFound } from "./utils/error";
+import path from "path";
 import ApiError from "./utils/apiError";
 
 
@@ -14,6 +15,8 @@ const PORT = 3000;
 
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }));
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // app.use(fileUpload())
 
    
