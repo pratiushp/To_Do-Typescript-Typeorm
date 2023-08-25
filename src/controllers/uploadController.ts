@@ -2,23 +2,35 @@ import { Response, NextFunction } from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
+import ErrorHandler from '../utils/ErrorHandler';
+import successMiddleware from '../helper/successResponse';
+import { Upload } from '../Entities/Upload';
+
+
 
 export const uploadImageController = async (req: any, res: Response, next: NextFunction) => {
   try {
-  
     const userId = req.user?.id.toString();
 
     if (!userId) {
-      return res.status(400).json({ message: 'Invalid user ID' });
+      return next(new ErrorHandler("Invalid User", 400))
     }
+
+    const userUploadDir = path.join('uploads', userId);
+    const uploadsDir = path.join(__dirname, 'uploads');
+
+
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
+
+    if (!fs.existsSync(userUploadDir)) {
+      fs.mkdirSync(userUploadDir, { recursive: true });
+    }
+    
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {
-        const userUploadDir = path.join('uploads', userId);
-        
-        if (!fs.existsSync(userUploadDir)) {
-          fs.mkdirSync(userUploadDir, { recursive: true });
-        }
-        cb(null, userUploadDir); 
+        cb(null, userUploadDir);
       },
       filename: (req, file, cb) => {
         cb(null, file.originalname);
@@ -29,18 +41,48 @@ export const uploadImageController = async (req: any, res: Response, next: NextF
       storage: storage,
     }).single('image');
 
-    uploadMiddleware(req, res, (err) => {
+    // Delete image and upload new one
+    fs.readdir(userUploadDir, async (err, files) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ message: 'An error occurred while uploading' });
+        return next(new ErrorHandler("Error On deleting Picture", 500))
       }
-      return res.status(201).json({ message: 'Picture uploaded and saved successfully' });
+
+      files.forEach((file) => {
+        const filePath = path.join(userUploadDir, file);
+        fs.unlinkSync(filePath);
+      });
+      
+      uploadMiddleware(req, res, async (err) => {
+        if (err) {
+          console.error(err);
+          return next(new ErrorHandler("Error on Uploading Picture", 500))
+        }
+        
+        const uploadRepository = (Upload); 
+        const newUpload = new Upload();
+        newUpload.picturePath = path.join(userUploadDir, req.file.filename);
+        newUpload.user = userId; 
+
+        try {
+          const savedUpload = await uploadRepository.save(newUpload);
+          successMiddleware({
+            message: "Successfully Uploaded Picture",
+            data: savedUpload, 
+          }, req, res, next);
+        } catch (error) {
+          console.error(error);
+          return next(new ErrorHandler("Error on Saving Picture Info", 500))
+        }
+      });
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'An error occurred' });
+    return next(new ErrorHandler(error.message, 500))
   }
 };
+
+
 
 // export const taskFileController =async (req:any, res:Response, next:NextFunction) => {
 //   try {
