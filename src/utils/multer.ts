@@ -1,16 +1,27 @@
 // import multer from 'multer';
+// import path from 'path';
 
-// // Configure multer to handle file uploads
 // const storage = multer.diskStorage({
-//   destination: 'uploads', // Specify the upload directory
+//   destination: (req, file, cb) => {
+//     cb(null, 'Files_Uploads'); // Uploads directory where files will be stored
+//   },
 //   filename: (req, file, cb) => {
-//     cb(null, file.originalname); // Use the original filename
+//     const extension = path.extname(file.originalname);
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+//     cb(null, uniqueSuffix + extension);
 //   },
 // });
 
-// // Create the multer instance
-// const uploadMiddleware = multer({
-//   storage: storage,
-// });
+// const fileFilter = (req: any, file: any, cb: any) => {
+//   const allowedExtensions = ['.pdf', '.docx', '.xlsx', '.jpg', '.jpeg', '.png'];
+//   const fileExtension = path.extname(file.originalname).toLowerCase();
+//   if (allowedExtensions.includes(fileExtension)) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error('Invalid file extension'));
+//   }
+// };
 
-// export default uploadMiddleware;
+// const upload = multer({ storage, fileFilter });
+
+// export { upload };

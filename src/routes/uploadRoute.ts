@@ -1,12 +1,14 @@
 import express from "express"
-import {  uploadImageController } from "../controllers/uploadController";
-// import uploadMiddleware from "../utils/multer";
+import {  uploadFile, uploadImageController } from "../controllers/uploadController";
+
+
 
 const router = express.Router();
 
 //Upload Image
-
 router.post("/upload-image",  uploadImageController)
 
+//Upload Task
+router.post("/upload-task",  uploadFile)
 
 export default router 

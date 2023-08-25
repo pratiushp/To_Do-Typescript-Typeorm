@@ -68,7 +68,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       return next(new ErrorHandler("Invalid Password", 400))
     }
 
-    const token = generateToken(user.id, user.role.map(role => role.role_name));
+    const token = generateToken(user.id, user.name, user.role.map(role => role.role_name));
 
     successMiddleware({
       message: "Login Success",
